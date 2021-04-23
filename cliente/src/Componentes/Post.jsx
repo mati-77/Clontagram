@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 import BotonLike from '../Componentes/BotonLike';
+import Comentar from './Comentar';
 
 export default function Post({ post, actualizarPost }) {
     const {
@@ -38,6 +39,7 @@ export default function Post({ post, actualizarPost }) {
                     
                 </ul>
             </div>
+            <Comentar />
         </div>
     )
 }/*queremos que por cada post en nuestro componente feed, vamos a hacer render de una instancia de este componente*/
