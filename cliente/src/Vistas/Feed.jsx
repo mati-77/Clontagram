@@ -34,6 +34,25 @@ export default function Feed({ mostrarError }) {
         cargarPostsIniciales();
     }, []);/*recordar que esto se ejecuta cuando el componente termina de hacer render*/
 
+
+    function actualizarPost(postOriginal, postActualizado) {
+        setPosts((posts) => {
+            const postsActualizados = posts.map(post => {
+                if (post !== postOriginal) {
+                    return post;
+                }
+
+                return postActualizado;
+            })
+            return postsActualizados;
+        })/*queremos modificar el array de posts que habiamos recibido, y cambiar el post original que haya recibido el like, por el actualizado, que ya lo recibió. 
+        Entonces, le pasamos a setPosts una funcion que retornara este array actualizado. Asi que, guardamos lo que será este array en una constante, asignandole un map, que se encargará de recorrer el array de posts, y verificar si alguno es el que cambié, para posteriormente reemplazarlo con el actualizado, haciendo un return postActualizado.
+        De esa manera, el lugar que antes ocupaba el post viejo en el array original, ahora es ocupado por el actualizado, dentro de la constante postsActualizados.
+        Ahora que ya tenemos esta constante con la actualización, la retornamos a setPosts con un return postsActualizados, para que actualice el estado posts.
+        Ahora debemos llamar a esta funcion una vez que tengamos la version actualizada. Es decir, se la tenemos que pasar a nuestro componente Post*/
+    }
+
+
     if (cargandoPostsIniciales) {
         return (
             <Main center>
@@ -54,7 +73,7 @@ export default function Feed({ mostrarError }) {
         <Main center>
             <div className="Feed">
                 {
-                    posts.map(post => (<Post key={post._id} post={post}/>))/*retorno la instancia de un componente Post */
+                    posts.map(post => (<Post key={post._id} post={post} actualizarPost={actualizarPost} mostrarError={mostrarError}/>))/*retorno la instancia de un componente Post */
                 }{/*transformamos cada uno de esos objetos en un componente tipo Post.*/}
             </div>
         </Main>

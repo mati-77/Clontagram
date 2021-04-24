@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 import BotonLike from '../Componentes/BotonLike';
 import Comentar from './Comentar';
+import { toggleLike } from '../Helpers/post-helpers';
 
-export default function Post({ post, actualizarPost }) {
+export default function Post({ post, actualizarPost, mostrarError }) {
     const {
         numLikes,
         numComentarios,
@@ -16,6 +17,25 @@ export default function Post({ post, actualizarPost }) {
         estaLike
     } = post;/*destructuramos el objeto post. Este es cada post dentro del JSON con posts que ya obtuvimos*/
 
+    const [enviandoLike, setEnviandoLike] = useState(false);/*cuando el usuario hace render, no le estamos dando like a nada*/
+
+    async function onSubmitLike() {
+        /*si estamos en proceso de enviar un like, no queremos que el usuario pueda dar varias veces like y hacer varias llamadas. Prevenimos eso usando useState*/
+        if (enviandoLike) {
+            return;
+        }
+
+        try {
+            setEnviandoLike(true)
+            const postActualizado = await toggleLike(post)
+            actualizarPost(post, postActualizado)
+            setEnviandoLike(false)
+        } catch (error) {
+            setEnviandoLike(false)
+            mostrarError('Hubo un problema modificando el like. Intenta de nuevo.')
+            console.log(error)
+        }
+    }
 
     return (
         <div className="Post-Componente">
@@ -24,7 +44,7 @@ export default function Post({ post, actualizarPost }) {
 
             <div className="Post-Componente__acciones">
                 <div className="Post-Componente__like-container">
-                    <BotonLike onSubmitLike={() => 1} like={estaLike}></BotonLike>
+                    <BotonLike onSubmitLike={onSubmitLike} like={estaLike}></BotonLike>
                 </div>{/*onSubmitLike no funciona todavia.*/}
                 <p>Liked por {numLikes} personas</p>
                 <ul>
