@@ -23,3 +23,19 @@ export async function toggleLike(post) {
 
     return postConLikeActualizado;/*con esto le queremos decir a react que haga render de esta nueva data, mas reciente*/
 }
+
+export async function comentar(post, mensaje, usuario) {
+    const { data: nuevoComentario } = await Axios.post(
+        `/api/posts/${post._id}/comentarios`,
+        { mensaje }/*el servidor espera que el parametro se llame mensaje*/
+    );
+    nuevoComentario.usuario = usuario;
+
+    const postConComentariosActualizados = {
+        ...post,
+        comentarios: [...post.comentarios, nuevoComentario],
+        numComentarios: post.numComentarios + 1
+    }
+
+    return postConComentariosActualizados;
+}

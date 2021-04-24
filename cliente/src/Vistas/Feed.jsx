@@ -14,7 +14,7 @@ async function cargarPosts(fechaDelUltimoPost) {
     return nuevosPosts;
 }
 
-export default function Feed({ mostrarError }) {
+export default function Feed({ mostrarError, usuario }) {
     const [posts, setPosts] = useState([]);
     const [cargandoPostsIniciales, setCargandoPostsIniciales] = useState(true);/*es true porque queremos que cuando renderice, carge los posts*/
 
@@ -73,7 +73,7 @@ export default function Feed({ mostrarError }) {
         <Main center>
             <div className="Feed">
                 {
-                    posts.map(post => (<Post key={post._id} post={post} actualizarPost={actualizarPost} mostrarError={mostrarError}/>))/*retorno la instancia de un componente Post */
+                    posts.map(post => (<Post key={post._id} post={post} actualizarPost={actualizarPost} mostrarError={mostrarError} usuario={usuario}/>))/*retorno la instancia de un componente Post */
                 }{/*transformamos cada uno de esos objetos en un componente tipo Post.*/}
             </div>
         </Main>

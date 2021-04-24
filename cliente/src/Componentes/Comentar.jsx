@@ -2,9 +2,24 @@ import React, { useState } from 'react';
 
 export default function Comentar({ onSubmitComentario, mostrarError }) {
     const [mensaje, setMensaje] = useState('');
+    const [enviandoComentario, setEnviandoComentario] = useState(false);
 
     async function onSubmit(e) {
         e.preventDefault();
+
+        if (enviandoComentario) {
+            return;
+        }
+
+        try {
+            setEnviandoComentario(true)
+            await onSubmitComentario(mensaje)
+            setMensaje('')
+            setEnviandoComentario(false)
+        } catch (error) {
+            setEnviandoComentario(false)
+            mostrarError('Hubo un problema guardando el comentario. Intenta de nuevo')
+        }
     }
     
     return (
