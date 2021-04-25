@@ -14,9 +14,13 @@ async function cargarPosts(fechaDelUltimoPost) {
     return nuevosPosts;
 }
 
+const NUMERO_DE_POSTS_POR_LLAMADA = 3;
+
 export default function Feed({ mostrarError, usuario }) {
     const [posts, setPosts] = useState([]);
     const [cargandoPostsIniciales, setCargandoPostsIniciales] = useState(true);/*es true porque queremos que cuando renderice, carge los posts*/
+    const [cargandoMasPosts, setCargandoMasPosts] = useState(false);
+    const [todosLosPostsCargados, setTodosLosPostsCargados] = useState(false);/*estado para evaluar si ya cargamos todos los posts*/
 
     useEffect(() => {
         async function cargarPostsIniciales() {
@@ -25,6 +29,7 @@ export default function Feed({ mostrarError, usuario }) {
                 setPosts(nuevosPosts);/*se cargan los posts y se guardan en el estado*/
                 console.log(nuevosPosts);
                 setCargandoPostsIniciales(false);
+                revisarSiHayMasPosts(nuevosPosts);
             } catch (error) {
                 mostrarError('Hubo un problema cargando tu feed');
                 console.log(error);
@@ -53,6 +58,31 @@ export default function Feed({ mostrarError, usuario }) {
     }
 
 
+    async function cargarMasPosts() {
+        if (cargandoMasPosts) {
+            return;
+        }
+
+        try {
+            setCargandoMasPosts(true);
+            const fechaDelUltimoPost = posts[posts.length -1].fecha_creado;/*obtenemos la fecha del ultimo post cargado, accediendo a la lista de posts*/
+            const nuevosPosts = await cargarPosts(fechaDelUltimoPost);
+            setPosts(viejosPosts => [...viejosPosts, ...nuevosPosts]);
+            setCargandoMasPosts(false);
+            revisarSiHayMasPosts(nuevosPosts);
+        } catch (error) {
+            mostrarError('Hubo un problema cargando los siguientes posts.');
+            setCargandoMasPosts(false);
+        }
+    }
+
+    function revisarSiHayMasPosts(nuevosPosts) {
+        if (nuevosPosts.length < NUMERO_DE_POSTS_POR_LLAMADA) {
+            setTodosLosPostsCargados(true);
+        }
+    }/*si se nos regresa menos de 3 posts, entendemos que ya no hay posts para la siguiente llamada*/
+
+
     if (cargandoPostsIniciales) {
         return (
             <Main center>
@@ -73,8 +103,16 @@ export default function Feed({ mostrarError, usuario }) {
         <Main center>
             <div className="Feed">
                 {
-                    posts.map(post => (<Post key={post._id} post={post} actualizarPost={actualizarPost} mostrarError={mostrarError} usuario={usuario}/>))/*retorno la instancia de un componente Post */
+                    posts.map(post => (
+                        <Post 
+                            key={post._id} 
+                            post={post} 
+                            actualizarPost={actualizarPost} 
+                            mostrarError={mostrarError} 
+                            usuario={usuario}
+                        />))/*retorno la instancia de un componente Post */
                 }{/*transformamos cada uno de esos objetos en un componente tipo Post.*/}
+                <CargarMasPosts onClick={cargarMasPosts} todosLosPostsCargados={todosLosPostsCargados} />
             </div>
         </Main>
     )
@@ -94,3 +132,17 @@ function NoSiguesANadie() {
         </div>
     )
 }
+
+function CargarMasPosts({ onClick, todosLosPostsCargados }) {
+    if (todosLosPostsCargados) {
+        return <div className="Feed__no-hay-mas-posts">No hay mas posts</div>
+    }
+
+    return (
+        <button className="Feed__cargar-mas" onClick={onClick}>
+            Ver más
+        </button>
+    )
+
+}/*todosLosPostsCargados es un booleano. Este componente sirve para
+crear el boton de "Ver mas", o un mensaje de "No hay mas posts"*/

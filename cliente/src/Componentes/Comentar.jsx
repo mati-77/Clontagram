@@ -13,8 +13,8 @@ export default function Comentar({ onSubmitComentario, mostrarError }) {
 
         try {
             setEnviandoComentario(true)
-            await onSubmitComentario(mensaje)
-            setMensaje('')
+            await onSubmitComentario(mensaje)/*recordar que mensaje es lo que se escribe en el input, y se encuntra guardado en un estado*/
+            setMensaje('')/*reseteamos el input*/
             setEnviandoComentario(false)
         } catch (error) {
             setEnviandoComentario(false)
